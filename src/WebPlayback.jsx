@@ -13,6 +13,7 @@ const track = {
 }
 
 function WebPlayback(props) {
+//const WebPlayback = ({ token }) => {
 
     const [is_paused, setPaused] = useState(false);
     const [is_active, setActive] = useState(false);
@@ -54,8 +55,8 @@ function WebPlayback(props) {
                 setTrack(state.track_window.current_track);
                 setPaused(state.paused);
 
-                player.getCurrentState().then( state => { 
-                    (!state)? setActive(false) : setActive(true) 
+                player.getCurrentState().then( state => {
+                    (!state)? setActive(false) : setActive(true)
                 });
 
             }));
@@ -65,12 +66,13 @@ function WebPlayback(props) {
         };
     }, []);
 
-    if (!is_active) { 
+    if (!is_active) {
+      console.log("token is", props.token);
         return (
             <>
                 <div className="container">
                     <div className="main-wrapper">
-                        <b> Instance not active. Transfer your playback using your Spotify app </b>
+                        <b> Instance not active. Transfer your playback using your Spotify app {props.token.token_type}</b>
                     </div>
                 </div>
             </>)

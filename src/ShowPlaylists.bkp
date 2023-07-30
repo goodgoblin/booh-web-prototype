@@ -1,0 +1,80 @@
+import React, { useState, useEffect } from 'react';
+
+const ShowPlaylists = ({ token }) => {
+  const [playlists, setPlaylists] = useState([]);
+
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      let playlists = [];
+      let morePlaylists = true;
+      let offset = 0;
+      const limit = 50; // maximum limit is 50
+
+      while (morePlaylists) {
+        try {
+          const response = await fetch(`https://api.spotify.com/v1/me/playlists?limit=${limit}&offset=${offset}`, {
+            headers: {
+              'Authorization': 'Bearer ' + token
+            }
+          });
+          const data = await response.json();
+
+          const playlistPromises = data.items.map(async playlist => {
+            if (playlist.name.toLowerCase().includes('bat')) {
+              const tracksResponse = await fetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, {
+                headers: {
+                  'Authorization': 'Bearer ' + token
+                }
+              });
+              const tracksData = await tracksResponse.json();
+
+              const totalDurationSeconds = tracksData.items.reduce((total, item) => total + item.track.duration_ms / 1000, 0);
+
+              return {
+                ...playlist,
+                totalDurationSeconds
+              };
+            }
+          });
+
+          const resolvedPlaylists = await Promise.all(playlistPromises);
+          playlists = [...playlists, ...resolvedPlaylists.filter(Boolean)];
+
+          if (data.items.length < limit) {
+            morePlaylists = false;
+          } else if (data.items.length < limit) {
+            morePlaylists = false;
+          } else {
+            offset += limit;
+          }
+        } catch (error) {
+          console.error('Error fetching playlists', error);
+          morePlaylists = false;
+        }
+      }
+
+      setPlaylists(playlists);
+    };
+
+    fetchPlaylists();
+
+
+
+  }, [token]);
+
+  return (
+    <div>
+      <h1>Your Spotify Playlists</h1>
+      {playlists.map(playlist => (
+        <div key={playlist.id}>
+          <h2>{playlist.name}</h2>
+          <p>{playlist.description}</p>
+          <img src={playlist.images[0]?.url} alt={playlist.name} />
+          <p>Total duration: {playlist.totalDurationSeconds} seconds</p>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default ShowPlaylists;

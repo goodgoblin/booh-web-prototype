@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import WebPlayback from './WebPlayback'
+import HarukiMurakami from './HarukiMurakami'
 import Login from './Login'
+import Header from './Header'
+//import ShowPlaylists from './ShowPlaylists'
 import './App.css';
 
 function App() {
@@ -21,7 +23,9 @@ function App() {
 
   return (
     <>
-        { (token === '') ? <Login/> : <WebPlayback token={token} /> }
+      <Header/>
+      { false && <Login/> }
+        { token === '' ? <Login/> : <HarukiMurakami token={token} /> }
     </>
   );
 }
